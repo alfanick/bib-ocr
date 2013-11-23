@@ -1,4 +1,4 @@
-SOURCES=main.cpp
+SOURCES=main.cpp Extractor.cpp
 
 CXX=clang++ -Wall -std=c++11 -stdlib=libc++ -O3
 
