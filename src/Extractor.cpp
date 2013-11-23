@@ -18,9 +18,7 @@ namespace BibOcr {
   }
 
   void Extractor::filter() {
-    cv::blur(image_, image_, cv::Size(3, 3));
-    save("blur", image_);
-    cv::Canny(image_, image_, 120, 200);
+    cv::Canny(image_, image_, 120, 200, 3);
     save("canny", image_);
 
   }
