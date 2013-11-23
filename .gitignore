@@ -11,3 +11,8 @@
 *.lai
 *.la
 *.a
+
+bin/*
+!bin/.placeholder
+obj/*
+!obj/.placeholder
