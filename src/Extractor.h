@@ -9,11 +9,11 @@
 namespace BibOcr {
   class Extractor {
     private:
-      std::string filename;
-      cv::Mat image;
+      std::string filename_;
+      cv::Mat image_;
 
     public:
-      Extractor(const std::string f);
+      Extractor(const std::string filename);
       ~Extractor();
   };
 }
