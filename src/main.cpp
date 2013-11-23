@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "Extractor.h"
+#include "extractor.h"
 
-using namespace BibOcr;
+using namespace bib_ocr;
 
 int main(int argc, char **argv) {
   if (argc <= 1) {
@@ -16,10 +16,12 @@ int main(int argc, char **argv) {
     printf("Processing image '%s'\n", argv[i]);
 
     std::unique_ptr<Extractor> extractor(new Extractor(argv[i]));
+    extractor->Extract();
 
-    extractor->extract();
+    for (auto result : extractor->GetNumbers())
+      printf("%d ", result.number());
 
-    printf("Done\n");
+    printf("\nDone\n");
   }
 
   return EXIT_SUCCESS;

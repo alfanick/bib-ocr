@@ -1,34 +1,36 @@
-#include "Extractor.h"
+#include "extractor.h"
 
-namespace BibOcr {
-  Extractor::Extractor(const std::string filename) : filename_(filename) {
-    image_ = cv::imread(filename);
+namespace bib_ocr {
 
-    filter();
-  }
+Extractor::Extractor(const std::string& filename) : filename_(filename) {
+  image_ = cv::imread(filename);
+  // TODO(kareth) read image_handler header file
+  ImageHandler::set_filename(filename);
+}
 
-  Extractor::~Extractor() {
-  }
+Extractor::~Extractor() {
+}
 
-  std::vector<cv::Mat> Extractor::extract() {
-    std::vector<cv::Mat> objects;
+int Extractor::Extract() {
+  BlockSeparator separator(&image_);
+  if (separator.Separate() == -1)
+    return -1;
 
+  ExtractNumbers(separator.GetBlocks());
+  return 0;
+}
 
-    return objects;
-  }
-
-  void Extractor::filter() {
-    cv::Canny(image_, image_, 120, 200, 3);
-    save("canny", image_);
-
-  }
-
-  void Extractor::save(const std::string category, const cv::Mat data) {
-    std::string filename(filename_);
-
-    filename.replace(filename.find("input/"), 6, "output/");
-    filename.replace(filename.find(".jpg"), 4, "." + category + ".jpg");
-
-    cv::imwrite(filename, data);
+void Extractor::ExtractNumbers(const std::vector<cv::Mat>& blocks) {
+  for (auto block : blocks) {
+    NumberReader reader(&block);
+    if (reader.Read() == 0)
+      AddResult(reader.GetNumber());
   }
 }
+
+void Extractor::AddResult(const Result& result) {
+  numbers_.push_back(result);
+  return;
+}
+
+}  // namespace bib_ocr

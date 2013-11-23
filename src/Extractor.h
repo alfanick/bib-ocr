@@ -1,30 +1,36 @@
-#ifndef BO_EXTRACTOR_H
-#define BO_EXTRACTOR_H
+#ifndef BO_EXTRACTOR_H_
+#define BO_EXTRACTOR_H_
 
 #include <string>
 #include <vector>
 #include <cstdio>
 
+#include "block_separator.h"
+#include "number_reader.h"
+#include "result.h"
+
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-namespace BibOcr {
-  class Extractor {
-    private:
-      std::string filename_;
-      cv::Mat image_;
+namespace bib_ocr {
 
-    public:
-      Extractor(const std::string filename);
-      ~Extractor();
+class Extractor {
+ public:
+  explicit Extractor(const std::string& filename);
+  ~Extractor();
 
-      std::vector<cv::Mat> extract();
+  int Extract();
+  std::vector<Result> GetNumbers() const { return numbers_; };
 
-    private:
-      void filter();
+ private:
+  void ExtractNumbers(const std::vector<cv::Mat>& blocks);
+  void AddResult(const Result& result);
 
-      void save(const std::string category, const cv::Mat data);
-  };
+  std::string filename_;
+  cv::Mat image_;
+  std::vector<Result> numbers_;
+};
+
 }
 
-#endif
+#endif  // BO_EXTRACTOR_H_
