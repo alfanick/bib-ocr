@@ -6,9 +6,19 @@
 using namespace BibOcr;
 
 int main(int argc, char **argv) {
-  printf("Hello world!\n");
+  if (argc <= 1) {
+    printf("At least one image path is required!\n");
 
-  std::unique_ptr<Extractor> extractor(new Extractor());
+    return EXIT_FAILURE;
+  }
+
+  for (int i = 1; i < argc; i++) {
+    printf("Processing image '%s'\n", argv[i]);
+
+    std::unique_ptr<Extractor> extractor(new Extractor(argv[i]));
+
+    printf("Done\n");
+  }
 
   return EXIT_SUCCESS;
 }
