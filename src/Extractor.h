@@ -23,7 +23,7 @@ namespace BibOcr {
     private:
       void filter();
 
-      void save(std::string category, cv::Mat data);
+      void save(const std::string category, const cv::Mat data);
   };
 }
 

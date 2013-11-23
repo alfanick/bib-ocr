@@ -14,19 +14,22 @@ namespace BibOcr {
     std::vector<cv::Mat> objects;
 
 
-    save("canny", image_);
-
     return objects;
   }
 
   void Extractor::filter() {
-    cv::Canny(image_, image_, 20, 100, 3);
+    cv::blur(image_, image_, cv::Size(3, 3));
+    save("blur", image_);
+    cv::Canny(image_, image_, 120, 200);
+    save("canny", image_);
 
   }
 
-  void Extractor::save(std::string category, cv::Mat data) {
-    std::string filename = filename_.replace(filename_.find("input/"), 6, "output/");
-    filename = filename.replace(filename.find(".jpg"), 4, "." + category + ".jpg");
+  void Extractor::save(const std::string category, const cv::Mat data) {
+    std::string filename(filename_);
+
+    filename.replace(filename.find("input/"), 6, "output/");
+    filename.replace(filename.find(".jpg"), 4, "." + category + ".jpg");
 
     cv::imwrite(filename, data);
   }
