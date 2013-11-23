@@ -17,6 +17,8 @@ int main(int argc, char **argv) {
 
     std::unique_ptr<Extractor> extractor(new Extractor(argv[i]));
 
+    extractor->extract();
+
     printf("Done\n");
   }
 
