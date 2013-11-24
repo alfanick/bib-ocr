@@ -18,6 +18,7 @@ BlockSeparator::~BlockSeparator() {
 int BlockSeparator::Separate() {
   ImageHandler::Save("raw", original_);
   printf("Searching for blocks...\n");
+  FilterGroups();
   MarkPromisingAreas();
   FindEdges();
   FindPromisingAreas();
@@ -26,17 +27,30 @@ int BlockSeparator::Separate() {
   return 0;
 }
 
-void BlockSeparator::MarkPromisingAreas() {
-  for (int i = 0; i < groups_.rows; i++){
-    for (int j = 0; j < groups_.cols; j++){
-      if (IsWhite(groups_, i, j)) {
-        SetColor(&groups_, i, j, 255, 255, 255);
-      }
-      else {
-        SetColor(&groups_, i, j, 0, 0, 0);
+void BlockSeparator::FilterGroups() {
+  cv::Mat lookUpTable(1, 256, CV_8U);
+
+  uchar* p = lookUpTable.data;
+  for(int i = 0; i < 256; i++)
+        p[i] = 32 * (i/32);
+  cv::LUT(groups_, lookUpTable, groups_);
+
+  for (int y = 0; y < groups_.rows; y++) {
+    for (int x = 0; x < groups_.cols; x++) {
+      for (int c = 0; c < 3; c++) {
+        groups_.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(groups_.at<cv::Vec3b>(y,x)[c] * kContrast + kBrightness);
       }
     }
   }
+
+  cv::cvtColor(groups_, groups_, CV_BGR2HSV);
+
+
+  ImageHandler::Save("bc", groups_);
+}
+
+void BlockSeparator::MarkPromisingAreas() {
+  cv::inRange(groups_, cv::Scalar(0, 0, 80), cv::Scalar(255, 20, 255), groups_);
   ImageHandler::Save("groups", groups_);
 }
 
@@ -73,13 +87,6 @@ void BlockSeparator::FindPromisingAreas() {
       if (!IsWhite(groups_, i, j))
         visited_[i][j] = true;
 
-  for (int y = 0; y < groups_.rows; y++) {
-    for (int x = 0; x < groups_.cols; x++) {
-      for (int c = 0; c < 3; c++) {
-        groups_.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(kContrast * (groups_.at<cv::Vec3b>(y,x)[c]) + kBrightness);
-      }
-    }
-  }
 
   for (int i = 0; i < groups_.rows; i++)
     for (int j = 0; j < groups_.cols; j++)

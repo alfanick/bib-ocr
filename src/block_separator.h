@@ -24,6 +24,7 @@ class BlockSeparator {
    std::vector<cv::Mat> GetBlocks() const { return blocks_; }
 
  private:
+  void FilterGroups();
   void FindEdges();
   void MarkPromisingAreas();
   bool IsWhite(const cv::Mat& image, int x, int y) const;
@@ -33,8 +34,8 @@ class BlockSeparator {
   void SaveBlocks() const;
 
 
-  const double kContrast = 3.0;
-  const int kBrightness = 10;
+  const double kContrast = 1.5;
+  const int kBrightness = 20;
   const int kMinBlockSize = 5000;
   cv::Mat original_;
   cv::Mat edges_;
