@@ -73,6 +73,14 @@ void BlockSeparator::FindPromisingAreas() {
       if (!IsWhite(groups_, i, j))
         visited_[i][j] = true;
 
+  for (int y = 0; y < groups_.rows; y++) {
+    for (int x = 0; x < groups_.cols; x++) {
+      for (int c = 0; c < 3; c++) {
+        groups_.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(kContrast * (groups_.at<cv::Vec3b>(y,x)[c]) + kBrightness);
+      }
+    }
+  }
+
   for (int i = 0; i < groups_.rows; i++)
     for (int j = 0; j < groups_.cols; j++)
       if (IsWhite(groups_, i, j) && !visited_[i][j]) {
