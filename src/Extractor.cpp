@@ -12,7 +12,7 @@ Extractor::~Extractor() {
 }
 
 int Extractor::Extract() {
-  BlockSeparator separator(&image_);
+  BlockSeparator separator(image_);
   if (separator.Separate() == -1)
     return -1;
 
