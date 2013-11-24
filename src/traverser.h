@@ -1,6 +1,7 @@
 #ifndef TRAVERSER_H_
 #define TRAVERSER_H_
 
+#include <stack>
 #include <vector>
 
 #include <opencv2/opencv.hpp>

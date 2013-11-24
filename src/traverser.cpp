@@ -13,15 +13,25 @@ Traverser::~Traverser() {
 }
 
 void Traverser::Run(int x, int y) {
-  if (x < 0 || y < 0 || x >= original_->rows || y >= original_->cols)
-    return;
-  if ((*visited_)[x][y] == true) return;
+  std::stack< std::pair<int, int> > s;
+  s.push(std::make_pair(x, y));
 
-  (*visited_)[x][y] = true;
-  points_.push_back(std::pair<int, int>(x, y));
+  while (!s.empty()) {
+    std::pair<int, int> current = s.top();
+    s.pop();
 
-  for (int i = 0; i < 4; i++)
-    Run(x + move_x_[i], y + move_y_[i]);
+    if (current.first < 0 || current.second < 0 || current.first >= original_->rows || current.second >= original_->cols)
+      continue;
+    if ((*visited_)[current.first][current.second])
+      continue;
+
+    (*visited_)[current.first][current.second] = true;
+
+    points_.push_back(current);
+
+    for (int i = 0; i < 4; i++)
+      s.push(std::make_pair(current.first + move_x_[i], current.second + move_y_[i]));
+  }
 }
 
 
