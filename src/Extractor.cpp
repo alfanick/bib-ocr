@@ -6,7 +6,6 @@ Extractor::Extractor(const std::string& filename) : filename_(filename) {
   image_ = ImageHandler::ReadOriented(filename);
   // TODO(kareth) read image_handler header file
   ImageHandler::set_filename(filename);
-
 }
 
 Extractor::~Extractor() {

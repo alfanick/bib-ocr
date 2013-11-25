@@ -2,6 +2,7 @@
 #define NUMBER_READER_H_
 
 #include "result.h"
+#include "tesseract_parser.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>

@@ -10,8 +10,13 @@ NumberReader::~NumberReader() {
 }
 
 int NumberReader::Read() {
-  // TODO(kareth) Read number from image
-  return 0;
+  TesseractParser parser(image_);
+  if(parser.Parse() != -1) {
+    result_ = parser.GetResult();
+    return 0;
+  } else {
+    return -1;
+  }
 }
 
 }  // namespace bib_ocr
