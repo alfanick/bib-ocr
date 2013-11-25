@@ -19,8 +19,8 @@ int BlockSeparator::Separate() {
   ImageHandler::Save("raw", original_);
   printf("Searching for blocks...\n");
   FilterGroups();
-  MarkPromisingAreas();
   FindEdges();
+  MarkPromisingAreas();
   FindPromisingAreas();
   printf("Found %lu blocks!\n", blocks_.size());
   SaveBlocks();
@@ -28,7 +28,7 @@ int BlockSeparator::Separate() {
 }
 
 void BlockSeparator::FilterGroups() {
-  cv::Mat lookUpTable(1, 256, CV_8U);
+/*  cv::Mat lookUpTable(1, 256, CV_8U);
 
   uchar* p = lookUpTable.data;
   for(int i = 0; i < 256; i++)
@@ -36,7 +36,7 @@ void BlockSeparator::FilterGroups() {
   cv::LUT(groups_, lookUpTable, groups_);
 
   ImageHandler::Save("rd", groups_);
-
+*/
   for (int y = 0; y < groups_.rows; y++) {
     for (int x = 0; x < groups_.cols; x++) {
       for (int c = 0; c < 3; c++) {
@@ -45,14 +45,38 @@ void BlockSeparator::FilterGroups() {
     }
   }
 
-  cv::cvtColor(groups_, groups_, CV_BGR2HSV);
 
 
   ImageHandler::Save("bc", groups_);
 }
 
 void BlockSeparator::MarkPromisingAreas() {
-  cv::inRange(groups_, cv::Scalar(0, 0, 120), cv::Scalar(255, 20, 255), groups_);
+  cv::Mat background_mask, output_mask, contours_mask;
+  cv::Mat background, output, sharp;
+
+  std::vector<std::vector<cv::Point> > contours;
+  std::vector<cv::Vec4i> hierarchy;
+
+  // find contours
+  cv::findContours(edges_, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+  contours_mask = cv::Mat::zeros(groups_.rows, groups_.cols, CV_8UC1);
+  cv::drawContours(contours_mask, contours, -1, cv::Scalar(255), CV_FILLED);
+
+  ImageHandler::Save("sharpmask", contours_mask);
+  groups_.copyTo(sharp, contours_mask);
+
+  ImageHandler::Save("sharp", sharp);
+
+  cv::cvtColor(sharp, sharp, CV_BGR2HSV);
+
+  cv::inRange(sharp, cv::Scalar(0, 0, 200), cv::Scalar(255, 50, 255), background_mask);
+  groups_.copyTo(background, background_mask);
+
+  cv::inRange(background, cv::Scalar(0, 0, 0), cv::Scalar(255, 50, 100), output_mask);
+
+  groups_.setTo(cv::Scalar(255,255,255));
+  background.copyTo(groups_, output_mask);
+
   ImageHandler::Save("groups", groups_);
 }
 
@@ -78,12 +102,20 @@ void BlockSeparator::SetColor(cv::Mat* image, int x, int y, int r, int g, int b)
 }
 
 void BlockSeparator::FindEdges() {
-  cv::Canny(edges_, edges_, 120, 200, 3);
+  cv::cvtColor(edges_, edges_, CV_BGR2GRAY);
+  cv::blur(edges_, edges_, cv::Size(3,3));
+
+  cv::Canny(edges_, edges_, 60, 200);
+
+  cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7,7), cv::Point(3,3));
+  for (int i =0; i < 5; i++)
+    cv::dilate(edges_, edges_, dilate_kernel);
+
   ImageHandler::Save("canny", edges_);
 }
 
 void BlockSeparator::FindPromisingAreas() {
-  markup_ = groups_.clone();
+  markup_ = original_.clone();
   for (int i = 0; i < groups_.rows; i++)
     for (int j = 0; j < groups_.cols; j++)
       if (!IsWhite(groups_, i, j))
@@ -105,7 +137,7 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
   if (points.size() < kMinBlockSize)
     return;
 
-  blocks_.push_back(cv::Mat(groups_, rows, cols));
+  blocks_.push_back(cv::Mat(original_, rows, cols));
 
   // Draw rectangle
   int color[] = { 255, (rand() % 2) * 255, (rand() % 2) * 255 };

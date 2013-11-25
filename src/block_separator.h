@@ -33,9 +33,8 @@ class BlockSeparator {
   void AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points);
   void SaveBlocks() const;
 
-
   const double kContrast = 1.5;
-  const int kBrightness = 20;
+  const int kBrightness = 0;
   const int kMinBlockSize = 5000;
   cv::Mat original_;
   cv::Mat edges_;
