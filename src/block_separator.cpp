@@ -59,6 +59,18 @@ void BlockSeparator::MarkPromisingAreas() {
 
   // find contours
   cv::findContours(edges_, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+
+  // filter small figures
+  for (auto contour = contours.begin(); contour != contours.end();) {
+    double area = cv::contourArea(cv::Mat(*contour));
+
+    if (area < 3000) {
+      contours.erase(contour);
+    } else {
+      ++contour;
+    }
+  }
+
   contours_mask = cv::Mat::zeros(groups_.rows, groups_.cols, CV_8UC1);
   cv::drawContours(contours_mask, contours, -1, cv::Scalar(255), CV_FILLED);
 
@@ -124,9 +136,25 @@ void BlockSeparator::FindPromisingAreas() {
 
   for (int i = 0; i < groups_.rows; i++)
     for (int j = 0; j < groups_.cols; j++)
-      if (IsWhite(groups_, i, j) && !visited_[i][j]) {
+      if (!visited_[i][j]) {
         Traverser traverser(groups_, edges_, &visited_);
         traverser.Run(i, j);
+
+        double height = traverser.ColRange().size();
+        double width = traverser.RowRange().size();
+
+        if (height <= 0 || width <= 0)
+          continue;
+
+        if (height > width)
+          std::swap(height, width);
+
+
+        if (width/height > 1.7)
+          continue;
+
+//        printf("%f\n", height/width);
+
         AddBlock(traverser.RowRange(), traverser.ColRange(), traverser.points());
       }
 
