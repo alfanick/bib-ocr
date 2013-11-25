@@ -67,12 +67,12 @@ void BlockSeparator::MarkPromisingAreas() {
 
   ImageHandler::Save("sharp", sharp);
 
-  cv::cvtColor(sharp, sharp, CV_BGR2HSV);
+  cv::cvtColor(sharp, sharp, CV_BGR2HLS);
 
-  cv::inRange(sharp, cv::Scalar(0, 0, 200), cv::Scalar(255, 50, 255), background_mask);
+  cv::inRange(sharp, cv::Scalar(0, 120, 0), cv::Scalar(255, 255, 70), background_mask);
   groups_.copyTo(background, background_mask);
 
-  cv::inRange(background, cv::Scalar(0, 0, 0), cv::Scalar(255, 50, 100), output_mask);
+  cv::inRange(background, cv::Scalar(0, 0, 0), cv::Scalar(255, 70, 100), output_mask);
 
   groups_.setTo(cv::Scalar(255,255,255));
   background.copyTo(groups_, output_mask);
