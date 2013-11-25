@@ -38,7 +38,9 @@ class BlockSeparator {
   const int kBrightness = 0;
   const int kMinBlockSize = 5000;
   cv::Mat original_;
+  cv::Mat filtered_;
   cv::Mat edges_;
+  cv::Mat canny_;
   cv::Mat markup_;
   cv::Mat groups_;
 
