@@ -32,8 +32,10 @@ void BlockSeparator::FilterGroups() {
 
   uchar* p = lookUpTable.data;
   for(int i = 0; i < 256; i++)
-        p[i] = 32 * (i/32);
+        p[i] = 64 * (i/64);
   cv::LUT(groups_, lookUpTable, groups_);
+
+  ImageHandler::Save("rd", groups_);
 
   for (int y = 0; y < groups_.rows; y++) {
     for (int x = 0; x < groups_.cols; x++) {
@@ -50,7 +52,7 @@ void BlockSeparator::FilterGroups() {
 }
 
 void BlockSeparator::MarkPromisingAreas() {
-  cv::inRange(groups_, cv::Scalar(0, 0, 80), cv::Scalar(255, 20, 255), groups_);
+  cv::inRange(groups_, cv::Scalar(0, 0, 120), cv::Scalar(255, 20, 255), groups_);
   ImageHandler::Save("groups", groups_);
 }
 
