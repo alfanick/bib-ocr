@@ -210,6 +210,9 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
 
     inner_block.setTo(cv::Scalar(255,255,255));
     block.copyTo(inner_block, inner_mask);
+
+    cv::cvtColor(inner_block, inner_block, CV_BGR2GRAY);
+    cv::threshold(inner_block, inner_block, 130, 255, 0);
     blocks_.push_back(inner_block);
   }
 
