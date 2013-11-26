@@ -218,6 +218,7 @@ std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const
 
     cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5,3), cv::Point(2,1));
     cv::erode(inner_block, inner_block, dilate_kernel);
+    cv::dilate(inner_block, inner_block, dilate_kernel);
 
     cv::cvtColor(inner_block, inner_block, CV_BGR2GRAY);
     cv::threshold(inner_block, inner_block, 140, 255, 0);
