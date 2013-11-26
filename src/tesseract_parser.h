@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include "result.h"
 #include "promising_areas.h"
@@ -18,17 +19,21 @@ namespace bib_ocr {
 
 class TesseractParser {
  public:
-  explicit TesseractParser(cv::Mat* image);
+  TesseractParser();
   ~TesseractParser();
 
-  int Parse();
-  Result GetResult() const;
+  int Parse(const cv::Mat& image);
+  std::vector<Result> GetResult();
+  int resultFound() const { return results_.size() > 0; }
 
  private:
   int ProcessWord(const std::string& word, int probability);
   int ParseWords(char* words, int* probabilities);
 
-  cv::Mat* image_;
+  void AddResult(int number, int probability);
+  void FilterResults();
+
+
   std::vector<Result> results_;
 };
 

@@ -3,6 +3,9 @@
 
 #include <vector>
 
+#include "traverser.h"
+#include "image_handler.h"
+
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
@@ -13,11 +16,20 @@ class PromisingAreas {
   PromisingAreas(const cv::Mat& original, const cv::Mat& bw);
   ~PromisingAreas();
 
-  std::vector<cv::Mat> GetAreas();
+  void Compute();
+  std::vector<cv::Mat> areas() { return areas_; }
 
  private:
+  bool IsWhite(const cv::Mat& image, int x, int y) const;
+  void SetColor(cv::Mat* image, int x, int y, int r, int g, int b);
+  void GenerateAreas();
+
   cv::Mat original_;
   cv::Mat bw_;
+  std::vector<cv::Mat> areas_;
+  std::vector<std::vector<bool> > visited_;
+
+  std::vector<std::vector<std::pair<int, int> > > constituents_;
 };
 
 }  // namespace bib_ocr

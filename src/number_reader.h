@@ -1,6 +1,7 @@
 #ifndef NUMBER_READER_H_
 #define NUMBER_READER_H_
 
+#include <vector>
 #include "result.h"
 #include "tesseract_parser.h"
 
@@ -12,15 +13,16 @@ namespace bib_ocr {
 class NumberReader {
  public:
   // Does not take ownership
-  explicit NumberReader(cv::Mat* image);
+  explicit NumberReader(std::pair<cv::Mat, cv::Mat>& blocks);
   ~NumberReader();
 
   int Read();
-  Result GetNumber() const { return result_; }
+  std::vector<Result> GetNumbers() const { return result_; }
 
  private:
-  cv::Mat* image_;
-  Result result_;
+  cv::Mat* original_;
+  cv::Mat* bw_;
+  std::vector<Result> result_;
 };
 
 }  // namespace bib_ocr

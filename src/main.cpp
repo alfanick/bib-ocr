@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 
 #include "extractor.h"
 
@@ -20,8 +21,10 @@ int main(int argc, char **argv) {
     std::unique_ptr<Extractor> extractor(new Extractor(argv[i]));
     extractor->Extract();
 
-    for (auto result : extractor->GetNumbers())
-      printf("(%d %d)\n", result.number(), result.probability());
+    std::vector<Result> numbers = extractor->GetNumbers();
+    sort(numbers.begin(), numbers.end(), [] (Result& a, Result& b) { return a.number() > b.number(); });
+    for (auto result : numbers)
+      printf("---------------------------------------------------(%d %d)\n", result.number(), result.probability());
 
     printf("Done\n");
   }

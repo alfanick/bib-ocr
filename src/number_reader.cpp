@@ -2,18 +2,22 @@
 
 namespace bib_ocr {
 
-NumberReader::NumberReader(cv::Mat* image)
-  : image_(image), result_() {
+NumberReader::NumberReader(std::pair<cv::Mat, cv::Mat>& block)
+  : original_(&block.first), bw_(&block.second) {
 }
 
 NumberReader::~NumberReader() {
 }
 
 int NumberReader::Read() {
-  PromisingAreas areas(*image_, *image_);
+  PromisingAreas areas(*original_, *bw_);
+  areas.Compute();
+  TesseractParser parser;
 
-  TesseractParser parser(image_);
-  if(parser.Parse() != -1) {
+  for (auto image : areas.areas())
+    parser.Parse(image);
+
+  if (parser.resultFound()) {
     result_ = parser.GetResult();
     return 0;
   } else {

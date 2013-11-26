@@ -228,7 +228,7 @@ std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const
     channels[2].copyTo(inner_block, inner_mask);
 
     cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3), cv::Point(1,1));
-    cv::erode(inner_block, inner_block, dilate_kernel);
+    //cv::erode(inner_block, inner_block, dilate_kernel);
     //cv::dilate(inner_block, inner_block, dilate_kernel);
 
     cv::threshold(inner_block, inner_block, 180, 255, 0);
