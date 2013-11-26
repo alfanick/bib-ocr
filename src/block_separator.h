@@ -22,7 +22,7 @@ class BlockSeparator {
    ~BlockSeparator();
 
    int Separate();
-   std::vector<cv::Mat> GetBlocks() const { return blocks_; }
+   std::vector<std::pair<cv::Mat, cv::Mat> > GetBlocks() const { return blocks_; }
 
  private:
   void FilterGroups();
@@ -34,15 +34,20 @@ class BlockSeparator {
   void AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points);
   void SaveBlocks() const;
 
+  std::vector<std::pair<cv::Mat, cv::Mat> > ExtractSubBlocks(const cv::Mat& input);
+
   const double kContrast = 1.5;
   const int kBrightness = 0;
   const int kMinBlockSize = 5000;
   cv::Mat original_;
+  cv::Mat filtered_;
+  cv::Mat sharp_;
   cv::Mat edges_;
+  cv::Mat canny_;
   cv::Mat markup_;
   cv::Mat groups_;
 
-  std::vector<cv::Mat> blocks_;
+  std::vector<std::pair<cv::Mat, cv::Mat> > blocks_;
   std::vector<std::vector<bool> > visited_;
 
 };

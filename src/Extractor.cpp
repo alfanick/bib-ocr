@@ -20,9 +20,9 @@ int Extractor::Extract() {
   return 0;
 }
 
-void Extractor::ExtractNumbers(const std::vector<cv::Mat>& blocks) {
+void Extractor::ExtractNumbers(const std::vector<std::pair<cv::Mat, cv::Mat> >& blocks) {
   for (auto block : blocks) {
-    NumberReader reader(&block);
+    NumberReader reader(&block.first);
     if (reader.Read() == 0)
       AddResult(reader.GetNumber());
   }
