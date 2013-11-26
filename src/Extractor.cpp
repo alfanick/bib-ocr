@@ -4,7 +4,18 @@ namespace bib_ocr {
 
 Extractor::Extractor(const std::string& filename) : filename_(filename) {
   image_ = ImageHandler::ReadOriented(filename);
-  // TODO(kareth) read image_handler header file
+  ImageHandler::set_filename(filename);
+}
+
+Extractor::Extractor(const std::string& filename, const cv::Scalar black_start, const cv::Scalar black_end, const cv::Scalar white_start, const cv::Scalar white_end) : filename_(filename) {
+  image_ = ImageHandler::ReadOriented(filename);
+  cv::cvtColor(image_, image_, CV_BGR2HSV);
+
+  std::unique_ptr<ColorReplacer> cr = std::unique_ptr<ColorReplacer>(new ColorReplacer(image_));
+  cr->Black(black_start, black_end);
+  cr->White(white_start, white_end);
+  image_ = cr->GetImage();
+  cv::cvtColor(image_, image_, CV_HSV2BGR);
   ImageHandler::set_filename(filename);
 }
 

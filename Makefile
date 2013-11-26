@@ -1,4 +1,4 @@
-SOURCES=main.cpp Extractor.cpp block_separator.cpp number_reader.cpp result.cpp image_handler.cpp traverser.cpp exif.cpp tesseract_parser.cpp logger.cpp
+SOURCES=main.cpp Extractor.cpp block_separator.cpp number_reader.cpp result.cpp image_handler.cpp traverser.cpp exif.cpp tesseract_parser.cpp color_replacer.cpp logger.cpp
 
 CXX=clang++ -Wall -std=c++11 -stdlib=libc++ -O3 -I/usr/local/include
 
