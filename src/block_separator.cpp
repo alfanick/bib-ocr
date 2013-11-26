@@ -179,9 +179,9 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
 
   cv::Mat block_mask = cv::Mat(block.rows, block.cols, CV_8UC1);
 
-  cv::inRange(block, cv::Scalar(0, 0, 0), cv::Scalar(255, 100, 90), block_mask);
-  cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7,7), cv::Point(3,3));
-  for (int i =0; i < 5; i++)
+  cv::inRange(block, cv::Scalar(0, 0, 0), cv::Scalar(255, 100, 140), block_mask);
+  cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9,9), cv::Point(4,4));
+  for (int i =0; i < 4; i++)
     cv::dilate(block_mask, block_mask, dilate_kernel);
 
   std::vector<std::vector<cv::Point> > contours, number_contours;
@@ -218,7 +218,7 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
     block.copyTo(inner_block, inner_mask);
 
     cv::cvtColor(inner_block, inner_block, CV_BGR2GRAY);
-    cv::threshold(inner_block, inner_block, 100, 255, 0);
+    cv::threshold(inner_block, inner_block, 140, 255, 0);
     cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3), cv::Point(1,1));
     for (int i =0; i < 1; i++)
       cv::dilate(inner_block, inner_block, dilate_kernel);
