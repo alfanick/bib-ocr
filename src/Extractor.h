@@ -8,6 +8,7 @@
 #include "block_separator.h"
 #include "number_reader.h"
 #include "result.h"
+#include "color_replacer.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -17,6 +18,7 @@ namespace bib_ocr {
 class Extractor {
  public:
   explicit Extractor(const std::string& filename);
+  explicit Extractor(const std::string& filename, const cv::Scalar black_start, const cv::Scalar black_stop, const cv::Scalar white_start, const cv::Scalar white_end);
   ~Extractor();
 
   int Extract();
