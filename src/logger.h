@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <chrono>
 
 #define LOG_HEADER_(context) static void context(std::string format, ...)
 #define LOG_BODY_(context) void Log::context(std::string format, ...) { \
@@ -31,6 +32,7 @@ class Log {
   LOG_HEADER_(extractor);
   LOG_HEADER_(block_separator);
  private:
+  std::chrono::high_resolution_clock::time_point start_time_;
   static Log* log_;
   FILE* handle_;
 };

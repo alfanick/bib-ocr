@@ -48,6 +48,7 @@ int main(int argc, char **argv) {
         }
 
         extractor->Extract();
+        Log::info("after extractoin of %s", filename);
         for (auto result : extractor->GetNumbers())
           printf("(%d %d)\n", result.number(), result.probability());
 
