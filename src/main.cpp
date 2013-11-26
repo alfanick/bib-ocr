@@ -2,11 +2,14 @@
 #include <cstdio>
 #include <cstring>
 
+#include "logger.h"
 #include "extractor.h"
 
 using namespace bib_ocr;
 
 int main(int argc, char **argv) {
+  //Log::file("foo.log");
+  Log::info("siema");
   srand(time(0));
   if (argc <= 1) {
     printf("At least one image path is required!\n");
