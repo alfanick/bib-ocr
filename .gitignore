@@ -18,3 +18,5 @@ obj/*
 !obj/.placeholder
 output/*
 !output/.placeholder
+input/*
+!input/in*

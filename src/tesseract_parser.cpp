@@ -48,7 +48,6 @@ int TesseractParser::Parse() {
   // TODO(kareth) this instance probably should be created once
   tesseract::TessBaseAPI tess;
   tess.Init(NULL, "eng");
-  //tess.SetVariable("classify_bln_numeric_mode", "1");
   //tess.SetVariable("tessedit_char_whitelist", "0123456789");
   tess.SetImage((uchar*)image_->data, image_->size().width, image_->size().height, image_->channels(), image_->step1());
   tess.Recognize(0);
@@ -56,8 +55,6 @@ int TesseractParser::Parse() {
   int* probabilities = tess.AllWordConfidences();
 
   int success = ParseWords(words, probabilities);
-  //delete[] words;
-  //delete[] probabilities;
   return success;
 }
 
