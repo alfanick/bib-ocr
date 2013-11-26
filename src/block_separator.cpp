@@ -197,6 +197,12 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
 
   cv::cvtColor(block, block, CV_HSV2BGR);
 
+  cv::Mat blurred;
+  ImageHandler::Save("befores", block);
+  cv::GaussianBlur(block, blurred, cv::Size(0, 0), 5);
+  cv::addWeighted(block, 1.5, blurred, -0.5, 0, block);
+  ImageHandler::Save("afters", block);
+
   int i = 0;
   for (auto contour : contours) {
     if (areas[i++]/area_total < 0.05) {
@@ -212,8 +218,13 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
     block.copyTo(inner_block, inner_mask);
 
     cv::cvtColor(inner_block, inner_block, CV_BGR2GRAY);
-    cv::threshold(inner_block, inner_block, 130, 255, 0);
-    blocks_.push_back(inner_block);
+    cv::threshold(inner_block, inner_block, 100, 255, 0);
+    cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3), cv::Point(1,1));
+    for (int i =0; i < 1; i++)
+      cv::dilate(inner_block, inner_block, dilate_kernel);
+    cv::erode(inner_block, inner_block, dilate_kernel);
+
+    blocks_.push_back(std::make_pair(inner_block, cv::Mat(original_, rows, cols).clone()));
   }
 
 
@@ -237,7 +248,8 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
 
 void BlockSeparator::SaveBlocks() const {
   for (int i = 0; i < blocks_.size(); i++) {
-    ImageHandler::Save("block_" + std::to_string(i), blocks_[i]);
+    ImageHandler::Save("block_" + std::to_string(i), blocks_[i].first);
+    ImageHandler::Save("block_original_" + std::to_string(i), blocks_[i].second);
   }
 }
 

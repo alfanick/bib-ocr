@@ -23,7 +23,7 @@ class Extractor {
   std::vector<Result> GetNumbers() const { return numbers_; };
 
  private:
-  void ExtractNumbers(const std::vector<cv::Mat>& blocks);
+  void ExtractNumbers(const std::vector<std::pair<cv::Mat, cv::Mat> >& blocks);
   void AddResult(const Result& result);
 
   std::string filename_;
