@@ -6,12 +6,16 @@ Extractor::Extractor(const std::string& filename) : filename_(filename) {
   image_ = ImageHandler::ReadOriented(filename);
   // TODO(kareth) read image_handler header file
   ImageHandler::set_filename(filename);
+    NumberReader reader(&image_);
+    if (reader.Read() == 0)
+      AddResult(reader.GetNumber());
 }
 
 Extractor::~Extractor() {
 }
 
 int Extractor::Extract() {
+  return 0;
   BlockSeparator separator(image_);
   if (separator.Separate() == -1)
     return -1;

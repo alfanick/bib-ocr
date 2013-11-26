@@ -43,7 +43,6 @@ int TesseractParser::ParseWords(char* words, int* probabilities) {
     return -1;
 }
 
-
 int TesseractParser::Parse() {
   // TODO(kareth) this instance probably should be created once
   tesseract::TessBaseAPI tess;
@@ -59,6 +58,7 @@ int TesseractParser::Parse() {
 }
 
 Result TesseractParser::GetResult() const {
+  // TODO get all good
   return results_[0];
 }
 

@@ -6,6 +6,8 @@
 #include <iostream>
 
 #include "result.h"
+#include "promising_areas.h"
+
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
