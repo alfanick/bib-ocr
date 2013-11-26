@@ -41,6 +41,7 @@ class BlockSeparator {
   const int kMinBlockSize = 5000;
   cv::Mat original_;
   cv::Mat filtered_;
+  cv::Mat sharp_;
   cv::Mat edges_;
   cv::Mat canny_;
   cv::Mat markup_;
