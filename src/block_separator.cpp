@@ -170,19 +170,19 @@ void BlockSeparator::FindPromisingAreas() {
   ImageHandler::Save("markup", markup_);
 }
 
-void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points) {
-  if (points.size() < kMinBlockSize)
-    return;
+std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const cv::Mat& input) {
+  std::vector<std::pair<cv::Mat, cv::Mat> > blocks;
 
-  cv::Mat block = cv::Mat(original_,rows,cols).clone();
+  cv::Mat block = input.clone();
   cv::cvtColor(block, block, CV_BGR2HSV);
 
   cv::Mat block_mask = cv::Mat(block.rows, block.cols, CV_8UC1);
 
   cv::inRange(block, cv::Scalar(0, 0, 0), cv::Scalar(255, 100, 140), block_mask);
-  cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9,9), cv::Point(4,4));
-  for (int i =0; i < 4; i++)
+  cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7,5), cv::Point(3,2));
+  for (int i =0; i < 8; i++)
     cv::dilate(block_mask, block_mask, dilate_kernel);
+  //cv::Canny(block_mask, block_mask, 100, 200);
 
   std::vector<std::vector<cv::Point> > contours, number_contours;
   std::vector<cv::Vec4i> hierarchy;
@@ -198,10 +198,8 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
   cv::cvtColor(block, block, CV_HSV2BGR);
 
   cv::Mat blurred;
-  ImageHandler::Save("befores", block);
   cv::GaussianBlur(block, blurred, cv::Size(0, 0), 5);
   cv::addWeighted(block, 1.5, blurred, -0.5, 0, block);
-  ImageHandler::Save("afters", block);
 
   int i = 0;
   for (auto contour : contours) {
@@ -214,18 +212,29 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
     cv::Mat inner_mask = cv::Mat::zeros(block.rows, block.cols, CV_8UC1);
     cv::drawContours(inner_mask, std::vector<std::vector<cv::Point> > (1, contour), -1, cv::Scalar(255), CV_FILLED);
 
+
     inner_block.setTo(cv::Scalar(255,255,255));
     block.copyTo(inner_block, inner_mask);
 
-    cv::cvtColor(inner_block, inner_block, CV_BGR2GRAY);
-    cv::threshold(inner_block, inner_block, 140, 255, 0);
-    cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3,3), cv::Point(1,1));
-    for (int i =0; i < 1; i++)
-      cv::dilate(inner_block, inner_block, dilate_kernel);
+    cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5,3), cv::Point(2,1));
     cv::erode(inner_block, inner_block, dilate_kernel);
 
-    blocks_.push_back(std::make_pair(inner_block, cv::Mat(original_, rows, cols).clone()));
+    cv::cvtColor(inner_block, inner_block, CV_BGR2GRAY);
+    cv::threshold(inner_block, inner_block, 140, 255, 0);
+
+
+    blocks.push_back(std::make_pair(inner_block, input));
   }
+
+  return blocks;
+}
+
+void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points) {
+  if (points.size() < kMinBlockSize)
+    return;
+
+  std::vector<std::pair<cv::Mat, cv::Mat> > b = ExtractSubBlocks(cv::Mat(original_, rows, cols).clone());
+  blocks_.insert(blocks_.begin(), b.begin(), b.end());
 
 
   // Draw rectangle

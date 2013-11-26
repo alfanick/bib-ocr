@@ -34,7 +34,7 @@ class BlockSeparator {
   void AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points);
   void SaveBlocks() const;
 
-
+  std::vector<std::pair<cv::Mat, cv::Mat> > ExtractSubBlocks(const cv::Mat& input);
 
   const double kContrast = 1.5;
   const int kBrightness = 0;
