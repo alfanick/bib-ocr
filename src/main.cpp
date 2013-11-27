@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 
 #include "logger.h"
 #include "extractor.h"
@@ -66,8 +67,14 @@ int main(int argc, char **argv) {
     std::unique_ptr<Extractor> extractor(new Extractor(argv[i]));
     extractor->Extract();
 
-    for (auto result : extractor->GetNumbers())
-      printf("(%d %d)\n", result.number(), result.probability());
+    std::vector<Result> numbers = extractor->GetNumbers();
+    sort(numbers.begin(), numbers.end(), [] (Result& a, Result& b) {
+        int sa = std::to_string(a.number()).size(), sb = std::to_string(b.number()).size();
+        if (sa == sb) return a.probability() > b.probability();
+        return sa > sb;
+        });
+    for (auto result : numbers)
+      printf("---------------------------------------------------(%d %d)\n", result.number(), result.probability());
 
     printf("Done\n");
   }

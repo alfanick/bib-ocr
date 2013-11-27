@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <algorithm>
 
 #include "block_separator.h"
 #include "number_reader.h"
@@ -26,7 +27,7 @@ class Extractor {
 
  private:
   void ExtractNumbers(const std::vector<std::pair<cv::Mat, cv::Mat> >& blocks);
-  void AddResult(const Result& result);
+  void AddResult(const std::vector<Result>& results);
 
   std::string filename_;
   cv::Mat image_;

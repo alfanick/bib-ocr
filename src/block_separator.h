@@ -33,6 +33,7 @@ class BlockSeparator {
   void FindPromisingAreas();
   void AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points);
   void SaveBlocks() const;
+  void ApplyZurekFilter(std::pair<cv::Mat, cv::Mat>&, const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points);
 
   std::vector<std::pair<cv::Mat, cv::Mat> > ExtractSubBlocks(const cv::Mat& input);
 
