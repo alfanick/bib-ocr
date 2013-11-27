@@ -78,7 +78,7 @@ void BlockSeparator::MarkPromisingAreas() {
     double area = cv::contourArea(cv::Mat(contour));
 
     if (area < 3000) {
-      Log::block_separator("  removed area = %f", area);
+      //Log::block_separator("  removed area = %f", area);
       continue;
     }
     number_contours.push_back(contour);
@@ -176,7 +176,7 @@ void BlockSeparator::FindPromisingAreas() {
 
 
         if (width/height > 1.7) {
-          Log::block_separator("  removed ratio = %f", width/height);
+          //Log::block_separator("  removed ratio = %f", width/height);
           continue;
         }
 
