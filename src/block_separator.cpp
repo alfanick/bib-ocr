@@ -55,21 +55,21 @@ void BlockSeparator::MarkPromisingAreas() {
   cv::Mat background_mask, output_mask, contours_mask;
   cv::Mat background, output, sharp;
 
-  std::vector<std::vector<cv::Point> > contours, number_contours;
+  std::vector<std::vector<cv::Point> > contours, number_contours, pre_contours;
   std::vector<cv::Vec4i> hierarchy;
 
   cv::Mat edges = edges_.clone();
 
   // find contours
-  cv::findContours(edges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-  Log::block_separator("Detected %lu contours", contours.size());
+  cv::findContours(edges, pre_contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+  Log::block_separator("Detected %lu contours", pre_contours.size());
 
 
   Log::block_separator("Removing small objects");
   for (auto h = hierarchy.begin(); h != hierarchy.end(); ++h) {
-    // has childs - not number
-    if ((*h)[2] != -1) {
-      contours.erase(contours.begin() + (h-hierarchy.begin()));
+    // has children - not number
+    if ((*h)[2] == -1) {
+      contours.push_back(pre_contours[h-hierarchy.begin()]);
     }
   }
 
