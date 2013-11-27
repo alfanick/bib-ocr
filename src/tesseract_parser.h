@@ -34,8 +34,8 @@ class TesseractParser {
   void AddResult(int number, int probability);
   void FilterResults();
 
-
   std::vector<Result> results_;
+  tesseract::TessBaseAPI tess_;
 };
 
 }  // namespace bib_ocr

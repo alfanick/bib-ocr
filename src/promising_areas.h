@@ -17,7 +17,7 @@ class PromisingAreas {
   ~PromisingAreas();
 
   void Compute();
-  std::vector<cv::Mat> areas() { return areas_; }
+  const std::vector<cv::Mat>& areas() const { return areas_; }
 
  private:
   bool IsWhite(const cv::Mat& image, int x, int y) const;
