@@ -70,7 +70,7 @@ int TesseractParser::Parse(const cv::Mat& image) {
 
 void TesseractParser::FilterResults() {
   //int max_score[] = {0, 100, 300, 600, 1000, 1500};
-  int max_score[] = {0, 100, 300, 500, 8000, 1500};
+  int max_score[] = {0, 100, 300, 500, 700, 1500};
 
   using std::swap;
   std::sort(results_.begin(), results_.end(), [] (Result& a, Result& b) { return a.number() > b.number(); });
@@ -121,7 +121,7 @@ void TesseractParser::FilterResults() {
       int digits = std::to_string(results_[p.first].number()).size();
       if (digits == 1) continue;
       double probability = double(p.second) / double(max_score[digits]) * 100.0;
-      if (probability > 70) {
+      if (probability > treshold || (probability > treshold - 10 && digits >= 3)) {
         new_result.push_back(Result(results_[p.first].number(), probability));
       }
     }

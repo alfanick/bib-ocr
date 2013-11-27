@@ -8,6 +8,9 @@ BlockSeparator::BlockSeparator(const cv::Mat& original)
   edges_ = original.clone();
   markup_ = original.clone();
   groups_ = original.clone();
+  sharp_ = original.clone();
+  filtered_ = original.clone();
+  canny_ = original.clone();
   std::vector<bool> row(original.cols, false);
   visited_.resize(original.rows, row);
 }
@@ -91,7 +94,6 @@ void BlockSeparator::MarkPromisingAreas() {
   groups_.copyTo(background, background_mask);
 
   cv::inRange(background, cv::Scalar(0, 0, 0), cv::Scalar(255, 70, 100), output_mask);
-
   groups_.setTo(cv::Scalar(255,255,255));
   background.copyTo(groups_, output_mask);
 
@@ -126,16 +128,16 @@ void BlockSeparator::FindEdges() {
   cv::blur(edges_, edges_, cv::Size(3,3));
 
   cv::Canny(edges_, edges_, 60, 200);
+  ImageHandler::Save("canny", edges_);
 
   cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7,7), cv::Point(3,3));
   for (int i =0; i < 5; i++)
-    cv::dilate(edges_, edges_, dilate_kernel);
+    cv::dilate(edges_.clone(), edges_, dilate_kernel);
 
 
 
   canny_ = edges_.clone();
 
-  ImageHandler::Save("canny", edges_);
 }
 
 void BlockSeparator::FindPromisingAreas() {
@@ -233,11 +235,74 @@ std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const
 
     cv::threshold(inner_block, inner_block, 180, 255, 0);
 
-
     blocks.push_back(std::make_pair(inner_block, input));
   }
-
   return blocks;
+}
+
+
+int bind = 0;
+
+void BlockSeparator::ApplyZurekFilter(std::pair<cv::Mat, cv::Mat>& image, const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points) {
+  ImageHandler::Save("zurekpre" + std::to_string(bind), image.first);
+  using std::vector;
+
+  int rbegin = rows.start;
+  int cbegin = cols.start;
+
+  // Mask image
+  cv::Mat mask = image.first.clone();
+  cv::cvtColor(mask, mask, CV_GRAY2BGR);
+
+
+  // Mark all points white
+  for (int i = 0; i < mask.rows; i++)
+    for (int j = 0; j < mask.cols; j++)
+      SetColor(&mask, i, j, 255, 255, 255);
+
+  // Create copy of white mask
+  cv::Mat mask_copy = mask.clone();
+
+  // Mark all points from current area as black
+  for (auto point : points)
+    SetColor(&mask, point.first - rbegin, point.second - cbegin, 0, 0, 0);
+
+  ImageHandler::Save("zurekmaskcopy" + std::to_string(bind), mask);
+  // Erode to make sure that nothing dark touches the number
+  cv::Mat erode_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9,9), cv::Point(4,4));
+  cv::erode(mask.clone(), mask, erode_kernel);
+
+  // Run outer dfs
+  vector<bool> row(mask.cols, false);
+  vector<vector<bool> > visited(mask.rows, row);
+
+  for (int i = 0; i < mask.rows; i++)
+    for (int j = 0; j < mask.cols; j++)
+      if (!IsWhite(mask, i, j))
+        visited[i][j] = true;
+
+  for (int i = 0; i < mask.rows; i++)
+    for (int j = 0; j < mask.cols; j++){
+      if (!(i == 0 || i == mask.rows - 1 || j == 0 || j == mask.cols - 1)) continue;
+      if (!visited[i][j]) {
+        Traverser traverser(mask, mask, &visited);
+        traverser.Run(i, j);
+        for (auto point : traverser.points())
+          SetColor(&mask_copy, point.first, point.second, 0, 0, 0);
+      }
+    }
+
+  // Run eode again, this time it shrinks 'selected' area
+  cv::Mat dilate_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(9,9), cv::Point(4,4));
+  cv::erode(mask_copy, mask_copy, dilate_kernel);
+
+  // Use mask to hide some pixels from processed block
+  for (int i = 0; i < mask_copy.rows; i++)
+    for (int j = 0; j < mask_copy.cols; j++)
+      if (!IsWhite(mask_copy, i, j))
+        SetColor(&image.first, i, j, 255, 255, 255);
+
+  ImageHandler::Save("zurekmask" + std::to_string(bind++), mask_copy);
 }
 
 void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points) {
@@ -245,7 +310,14 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
     return;
 
   std::vector<std::pair<cv::Mat, cv::Mat> > b = ExtractSubBlocks(cv::Mat(sharp_, rows, cols).clone());
-  blocks_.insert(blocks_.begin(), b.begin(), b.end());
+
+  for (int i = 0; i < b.size(); i++) {
+    blocks_.push_back(std::make_pair(b[i].first.clone(), b[i].second.clone()));
+    ApplyZurekFilter(b[i], rows, cols, points);
+    blocks_.push_back(b[i]);
+  }
+
+  //blocks_.insert(blocks_.begin(), b.begin(), b.end());
 
 
   // Draw rectangle
