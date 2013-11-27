@@ -3,7 +3,10 @@
 namespace bib_ocr {
 
 TesseractParser::TesseractParser()
-  : results_() {
+  : results_(), tess_() {
+  tess_.Init(NULL, "eng");
+  tess_.SetVariable("classify_enable_learning", "0");
+  tess_.SetVariable("classify_enable_adaptive_matcher", "0");
 }
 
 TesseractParser::~TesseractParser() {
@@ -54,15 +57,15 @@ int TesseractParser::ParseWords(char* words, int* probabilities) {
     return -1;
 }
 
-int TesseractParser::Parse(const cv::Mat& image) {
+int TesseractParser::Parse(const cv::Mat& original) {
   // TODO(kareth) this instance probably should be created once
-  tesseract::TessBaseAPI tess;
-  tess.Init(NULL, "eng");
   //tess.SetVariable("tessedit_char_whitelist", "0123456789");
-  tess.SetImage((uchar*)image.data, image.size().width, image.size().height, image.channels(), image.step1());
-  tess.Recognize(0);
-  char* words = tess.GetUTF8Text();
-  int* probabilities = tess.AllWordConfidences();
+  cv::Mat image = original.clone();
+
+  tess_.SetImage((uchar*)image.data, image.size().width, image.size().height, image.channels(), image.step1());
+  tess_.Recognize(0);
+  char* words = tess_.GetUTF8Text();
+  int* probabilities = tess_.AllWordConfidences();
 
   int success = ParseWords(words, probabilities);
   return success;

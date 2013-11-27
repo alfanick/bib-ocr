@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
         });
     for (auto result : numbers)
       printf("---------------------------------------------------(%d %d)\n", result.number(), result.probability());
+    printf("\n");
 
     Log::info("File %s processed", argv[i]);
   }
