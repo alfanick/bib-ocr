@@ -64,12 +64,11 @@ void BlockSeparator::MarkPromisingAreas() {
   cv::findContours(edges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
   Log::block_separator("Detected %lu contours", contours.size());
 
-
   Log::block_separator("Removing small objects");
-  for (auto h = hierarchy.begin(); h != hierarchy.end(); ++h) {
+  for (auto h = hierarchy.rbegin(); h != hierarchy.rend(); ++h) {
     // has childs - not number
-    if ((*h)[2] != -1) {
-      contours.erase(contours.begin() + (h-hierarchy.begin()));
+    if ((*h)[3] != -1) {
+      contours.erase(contours.begin() + (hierarchy.size() - 1 - (h-hierarchy.rbegin())));
     }
   }
 
@@ -78,7 +77,7 @@ void BlockSeparator::MarkPromisingAreas() {
     double area = cv::contourArea(cv::Mat(contour));
 
     if (area < 3000) {
-      Log::block_separator("  removed area = %f", area);
+      //Log::block_separator("  removed area = %f", area);
       continue;
     }
     number_contours.push_back(contour);
@@ -147,6 +146,7 @@ void BlockSeparator::FindEdges() {
 
 
   canny_ = edges_.clone();
+  ImageHandler::Save("edges", edges_);
 
 }
 
@@ -176,7 +176,7 @@ void BlockSeparator::FindPromisingAreas() {
 
 
         if (width/height > 1.7) {
-          Log::block_separator("  removed ratio = %f", width/height);
+          //Log::block_separator("  removed ratio = %f", width/height);
           continue;
         }
 
@@ -228,7 +228,7 @@ std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const
   int i = 0;
   for (auto contour : contours) {
     if (areas[i++]/area_total < 0.05) {
-      Log::block_separator("    removed fill ratio = %f", areas[i-1]/area_total);
+      //Log::block_separator("    removed fill ratio = %f", areas[i-1]/area_total);
       continue;
     }
     cv::Mat inner_block = cv::Mat::zeros(block.rows, block.cols, CV_8UC1);
