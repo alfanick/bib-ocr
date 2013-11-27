@@ -31,6 +31,7 @@ class Log {
   LOG_HEADER_(info);
   LOG_HEADER_(extractor);
   LOG_HEADER_(block_separator);
+  LOG_HEADER_(tesseract_parser);
  private:
   std::chrono::high_resolution_clock::time_point start_time_;
   static Log* log_;

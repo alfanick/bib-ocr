@@ -23,6 +23,7 @@ Extractor::~Extractor() {
 }
 
 int Extractor::Extract() {
+  Log::extractor("Extracting numbers from %s", filename_.c_str());
   BlockSeparator separator(image_);
   if (separator.Separate() == -1)
     return -1;
@@ -34,8 +35,10 @@ int Extractor::Extract() {
 void Extractor::ExtractNumbers(const std::vector<std::pair<cv::Mat, cv::Mat> >& blocks) {
   for (auto block : blocks) {
     NumberReader reader(block);
-    if (reader.Read() == 0)
+    if (reader.Read() == 0) {
       AddResult(reader.GetNumbers());
+      Log::extractor("Found numbers");
+    }
   }
 }
 

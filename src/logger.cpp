@@ -32,5 +32,6 @@ void Log::write(std::string prefix, char* message) {
 LOG_BODY_(info);
 LOG_BODY_(extractor);
 LOG_BODY_(block_separator);
+LOG_BODY_(tesseract_parser);
 
 }

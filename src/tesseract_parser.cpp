@@ -99,12 +99,10 @@ void TesseractParser::FilterResults() {
   }
   sort(coverage.begin(), coverage.end(), [] (std::pair<int, int> a, std::pair<int, int> b) { return a.second > b.second; });
 
-  printf("Filtered:\n");
   for (auto p : coverage) {
     double probability = double(p.second) / double(max_score[std::to_string(results_[p.first].number()).size()]);
-    printf("= %d (%d) [%lf]\n", results_[p.first].number(), p.second, probability);
+    Log::tesseract_parser("Filtered %d (%d) [%lf]", results_[p.first].number(), p.second, probability);
   }
-  printf("\n");
 
   std::vector<Result> new_result;
 
@@ -131,14 +129,12 @@ void TesseractParser::FilterResults() {
 }
 
 std::vector<Result> TesseractParser::GetResult() {
-  printf("Found numbers:\n");
+  std::string pr = "";
   for (auto res : results_) {
-    printf("= %d {%d} ( ",res.number(), res.probability());
     for (auto prob : res.probabilities())
-      printf("%d ", prob);
-    printf(")\n");
+      pr += std::to_string(prob) + " ";
+    Log::tesseract_parser("Found %d {%d} (%s)",res.number(), res.probability(), pr.c_str());
   }
-  printf("\n");
 
   FilterResults();
 

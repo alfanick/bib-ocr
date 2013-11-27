@@ -20,12 +20,19 @@ BlockSeparator::~BlockSeparator() {
 
 int BlockSeparator::Separate() {
   ImageHandler::Save("raw", original_);
-  printf("Searching for blocks...\n");
+  Log::block_separator("Searching for blocks...");
   FilterGroups();
+
+  Log::block_separator("Edge detection");
   FindEdges();
+
+  Log::block_separator("Marking promising areas");
   MarkPromisingAreas();
+
+  Log::block_separator("Finding edges");
   FindPromisingAreas();
-  printf("Found %lu blocks!\n", blocks_.size());
+
+  Log::block_separator("Found %lu blocks!", blocks_.size());
   SaveBlocks();
   return 0;
 }
@@ -53,12 +60,12 @@ void BlockSeparator::MarkPromisingAreas() {
 
   cv::Mat edges = edges_.clone();
 
-  printf("Finding objects\n");
   // find contours
   cv::findContours(edges, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+  Log::block_separator("Detected %lu contours", contours.size());
 
 
-  printf("Removing small objects\n");
+  Log::block_separator("Removing small objects");
   for (auto h = hierarchy.begin(); h != hierarchy.end(); ++h) {
     // has childs - not number
     if ((*h)[2] != -1) {
@@ -70,8 +77,10 @@ void BlockSeparator::MarkPromisingAreas() {
   for (auto contour : contours) {
     double area = cv::contourArea(cv::Mat(contour));
 
-    if (area < 3000)
+    if (area < 3000) {
+      Log::block_separator("  removed area = %f", area);
       continue;
+    }
     number_contours.push_back(contour);
   }
 
@@ -96,6 +105,8 @@ void BlockSeparator::MarkPromisingAreas() {
   cv::inRange(background, cv::Scalar(0, 0, 0), cv::Scalar(255, 70, 100), output_mask);
   groups_.setTo(cv::Scalar(255,255,255));
   background.copyTo(groups_, output_mask);
+
+  Log::block_separator("Masked groups");
 
   ImageHandler::Save("groups", groups_);
 }
@@ -123,7 +134,6 @@ void BlockSeparator::SetColor(cv::Mat* image, int x, int y, int r, int g, int b)
 }
 
 void BlockSeparator::FindEdges() {
-  printf("Finding edges...\n");
   cv::cvtColor(edges_, edges_, CV_BGR2GRAY);
   cv::blur(edges_, edges_, cv::Size(3,3));
 
@@ -148,7 +158,7 @@ void BlockSeparator::FindPromisingAreas() {
         visited_[i][j] = true;
 
 
-  printf("Exploring objects\n");
+  Log::block_separator("Exploring objects");
   for (int i = 0; i < groups_.rows; i++)
     for (int j = 0; j < groups_.cols; j++)
       if (!visited_[i][j]) {
@@ -165,10 +175,10 @@ void BlockSeparator::FindPromisingAreas() {
           std::swap(height, width);
 
 
-        if (width/height > 1.7)
+        if (width/height > 1.7) {
+          Log::block_separator("  removed ratio = %f", width/height);
           continue;
-
-//        printf("%f\n", height/width);
+        }
 
         AddBlock(traverser.RowRange(), traverser.ColRange(), traverser.points());
       }
@@ -205,6 +215,7 @@ std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const
   std::vector<cv::Vec4i> hierarchy;
 
   cv::findContours(block_mask, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+  Log::block_separator("  detected %ul subcontours", contours.size());
 
   std::vector<double> areas;
   double area_total = block.rows * block.cols;
@@ -217,10 +228,9 @@ std::vector<std::pair<cv::Mat, cv::Mat> > BlockSeparator::ExtractSubBlocks(const
   int i = 0;
   for (auto contour : contours) {
     if (areas[i++]/area_total < 0.05) {
-      printf("  too small\n");
+      Log::block_separator("    removed fill ratio = %f", areas[i-1]/area_total);
       continue;
     }
-    printf("  found\n");
     cv::Mat inner_block = cv::Mat::zeros(block.rows, block.cols, CV_8UC1);
     cv::Mat inner_mask = cv::Mat::zeros(block.rows, block.cols, CV_8UC1);
     cv::drawContours(inner_mask, std::vector<std::vector<cv::Point> > (1, contour), -1, cv::Scalar(255), CV_FILLED);
@@ -303,6 +313,8 @@ void BlockSeparator::ApplyZurekFilter(std::pair<cv::Mat, cv::Mat>& image, const 
         SetColor(&image.first, i, j, 255, 255, 255);
 
   ImageHandler::Save("zurekmask" + std::to_string(bind++), mask_copy);
+
+  Log::block_separator("Done Zurek filter");
 }
 
 void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, const std::vector<std::pair<int, int> >& points) {
@@ -315,6 +327,8 @@ void BlockSeparator::AddBlock(const cv::Range& rows, const cv::Range& cols, cons
     blocks_.push_back(std::make_pair(b[i].first.clone(), b[i].second.clone()));
     ApplyZurekFilter(b[i], rows, cols, points);
     blocks_.push_back(b[i]);
+
+    Log::block_separator("Added block");
   }
 
   //blocks_.insert(blocks_.begin(), b.begin(), b.end());
