@@ -1,4 +1,4 @@
-#ifndef COLOR_REAPLCER_H_
+#ifndef COLOR_REPLACER_H_
 #define COLOR_REPLACER_H_
 
 #include <vector>
